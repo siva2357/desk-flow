@@ -1,0 +1,110 @@
+<div class="container-fluid px-3 px-lg-4 py-4">
+
+  <!-- TOP HEADER -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h2 class="h4 fw-bold text-dark mb-0">Operations Tickets</h2>
+        <span class="df-badge df-badge-blue">
+          <i class="bi bi-ticket-perforated me-1"></i> Active Dispatched Workload
+        </span>
+      </div>
+      <p class="text-secondary small mb-0">
+        Monitor assigned tickets, check resolution progress against SLA deadlines, and track specialist execution.
+      </p>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <div class="input-group input-group-sm" style="min-width: 220px;">
+        <span class="input-group-text bg-white border-end-0 text-muted">
+          <i class="bi bi-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control bg-white border-start-0"
+          placeholder="Search ticket, customer, assignee..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)">
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS FILTER PILLS -->
+  <div class="d-flex align-items-center gap-2 mb-4 overflow-x-auto pb-1" style="scrollbar-width: none;">
+    @for (s of ['All', 'In Progress', 'Under Review', 'Escalated', 'Resolved']; track s) {
+      <button
+        type="button"
+        class="btn btn-sm rounded-pill px-3 py-1 fw-medium text-nowrap"
+        [class.btn-df-dark]="selectedStatus() === s"
+        [class.btn-light]="selectedStatus() !== s"
+        (click)="selectedStatus.set(s)">
+        {{ s }}
+      </button>
+    }
+  </div>
+
+  <!-- TICKETS GRID / LIST -->
+  <div class="row g-3">
+    @for (t of filteredTickets(); track t.id) {
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="df-card p-3 h-100 d-flex flex-column justify-content-between position-relative"
+          [class.border-danger]="t.slaBreached">
+
+          <!-- Header of card -->
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="font-mono fw-bold text-dark small">{{ t.id }}</span>
+                <span class="text-muted small">&bull; Req: <span class="font-mono">{{ t.requestId }}</span></span>
+              </div>
+              @if (t.priority === 'Critical') {
+                <span class="df-badge df-badge-red"><i class="bi bi-fire"></i> Critical</span>
+              } @else if (t.priority === 'High') {
+                <span class="df-badge df-badge-amber">High</span>
+              } @else {
+                <span class="df-badge df-badge-blue">Medium</span>
+              }
+            </div>
+
+            <h6 class="fw-bold text-dark mb-1" style="font-size: 14px;">{{ t.title }}</h6>
+            <div class="text-secondary small mb-3">Customer: <strong>{{ t.customer }}</strong></div>
+          </div>
+
+          <!-- Mid Section: Status & SLA -->
+          <div class="p-2 rounded bg-light border mb-3 small d-flex justify-content-between align-items-center">
+            <div>
+              <span class="text-muted d-block" style="font-size: 11px;">Status</span>
+              <span class="fw-semibold text-dark">{{ t.status }}</span>
+            </div>
+            <div class="text-end">
+              <span class="text-muted d-block" style="font-size: 11px;">SLA Deadline</span>
+              <span class="fw-bold font-mono" [class.text-danger]="t.slaBreached" [class.text-success]="!t.slaBreached">
+                {{ t.slaDueTime }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Bottom: Assignee & Action -->
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <div class="d-flex align-items-center gap-2">
+              <img [src]="t.assigneeAvatar" alt="Avatar" class="rounded-circle border" width="28" height="28">
+              <span class="small fw-medium text-dark">{{ t.assignee }}</span>
+            </div>
+
+            @if (t.status !== 'Resolved') {
+              <button type="button" class="btn btn-sm btn-outline-success px-2 py-1" style="font-size: 12px;" (click)="markResolved(t.id)">
+                <i class="bi bi-check2 me-1"></i> Resolve
+              </button>
+            } @else {
+              <span class="df-badge df-badge-emerald" style="font-size: 11px;">
+                <i class="bi bi-check-circle-fill"></i> Completed
+              </span>
+            }
+          </div>
+
+        </div>
+      </div>
+    }
+  </div>
+
+</div>

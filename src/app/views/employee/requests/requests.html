@@ -1,0 +1,479 @@
+<div class="container-fluid px-3 px-lg-4 py-4">
+
+  <!-- TOP HEADER & CONTROLLER SUMMARY -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h2 class="h4 fw-bold text-dark mb-0">Traffic Request Controller</h2>
+        <span class="df-badge df-badge-emerald">
+          <span class="live-dot"></span> Inbound Stream Active
+        </span>
+      </div>
+      <p class="text-secondary small mb-0">
+        Review third-party inbound payloads, calculate complexity & SLA limits, escalate urgent issues, and dispatch requests to specialists.
+      </p>
+    </div>
+
+    <!-- Live Telemetry Mini Pills -->
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <span class="df-badge df-badge-amber">
+        <i class="bi bi-hourglass-split"></i> {{ filteredRequests().length }} Requests Displayed
+      </span>
+      <span class="df-badge df-badge-purple">
+        <i class="bi bi-cpu"></i> Auto-Scoring Engine On
+      </span>
+    </div>
+  </div>
+
+  <!-- CONTROLS & FILTER BAR -->
+  <div class="df-card p-3 mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-stretch align-items-lg-center gap-3">
+
+      <!-- Status Tabs -->
+      <div class="d-flex align-items-center gap-1 overflow-x-auto pb-1 pb-lg-0" style="scrollbar-width: none;">
+        @for (tab of ['All', 'Unassigned', 'Calculating', 'Escalated', 'Assigned']; track tab) {
+          <button
+            type="button"
+            class="btn btn-sm text-nowrap rounded-pill px-3 py-1 fw-medium"
+            [class.btn-df-dark]="selectedStatusTab() === tab"
+            [class.btn-light]="selectedStatusTab() !== tab"
+            (click)="selectedStatusTab.set(tab)">
+            {{ tab }}
+          </button>
+        }
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
+        <!-- Source Selector -->
+        <select class="form-select form-select-sm" style="width: auto;" [ngModel]="selectedSource()" (ngModelChange)="selectedSource.set($event)">
+          <option value="All">All Channels</option>
+          <option value="FinTech Portal">FinTech Portal</option>
+          <option value="CRM Webhook">CRM Webhook</option>
+          <option value="Partner API">Partner API</option>
+          <option value="Core Banking API">Core Banking API</option>
+          <option value="Customer App">Customer App</option>
+        </select>
+
+        <!-- Priority Selector -->
+        <select class="form-select form-select-sm" style="width: auto;" [ngModel]="selectedPriority()" (ngModelChange)="selectedPriority.set($event)">
+          <option value="All">All Priorities</option>
+          <option value="Critical">Critical</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+
+        <!-- Search Box -->
+        <div class="input-group input-group-sm" style="min-width: 220px;">
+          <span class="input-group-text bg-white border-end-0 text-muted">
+            <i class="bi bi-search"></i>
+          </span>
+          <input
+            type="text"
+            class="form-control bg-white border-start-0"
+            placeholder="Search ID, title, client..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- REQUESTS DATA TABLE -->
+  <div class="df-card p-0 mb-4 overflow-hidden">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr class="text-uppercase text-secondary" style="font-size: 11px; letter-spacing: 0.05em;">
+            <th class="ps-3 py-3">Request ID & Source</th>
+            <th class="py-3">Title & Originating Entity</th>
+            <th class="py-3">Priority / SLA</th>
+            <th class="py-3">Complexity & Impact</th>
+            <th class="py-3">Assigned Specialist</th>
+            <th class="py-3">Status</th>
+            <th class="pe-3 py-3 text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (filteredRequests().length === 0) {
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-2 text-secondary d-block mb-2"></i>
+                No requests match your current filters.
+              </td>
+            </tr>
+          }
+          @for (req of filteredRequests(); track req.id) {
+            <tr [class.table-danger-subtle]="req.priority === 'Critical' && req.slaMinutesRemaining < 15">
+              <!-- ID & Source -->
+              <td class="ps-3 py-3">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded-2 bg-light p-1 text-secondary d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                    <i class="bi bi-hdd-network"></i>
+                  </div>
+                  <div>
+                    <span class="fw-bold font-mono text-dark" style="font-size: 13px;">{{ req.id }}</span>
+                    <div>
+                      <span class="df-badge" [ngClass]="req.sourceBadge" style="font-size: 10px; padding: 1px 6px;">
+                        {{ req.source }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Title & Customer -->
+              <td class="py-3" style="max-width: 280px;">
+                <div class="fw-semibold text-dark text-truncate" style="font-size: 13.5px;" [title]="req.title">
+                  {{ req.title }}
+                </div>
+                <div class="text-muted text-truncate small" style="font-size: 11.5px;">
+                  <span class="fw-medium text-dark">{{ req.customer }}</span> &bull;
+                  <span>{{ req.tier }}</span> &bull;
+                  <span class="font-mono text-secondary">{{ req.externalRef }}</span>
+                </div>
+              </td>
+
+              <!-- Priority & SLA -->
+              <td class="py-3">
+                <div class="d-flex flex-column gap-1">
+                  <div>
+                    @if (req.priority === 'Critical') {
+                      <span class="df-badge df-badge-red"><i class="bi bi-fire"></i> Critical</span>
+                    } @else if (req.priority === 'High') {
+                      <span class="df-badge df-badge-amber">High</span>
+                    } @else {
+                      <span class="df-badge df-badge-blue">Medium</span>
+                    }
+                  </div>
+                  <div class="small font-mono fw-medium" [class.text-danger]="req.slaMinutesRemaining < 20" [class.text-muted]="req.slaMinutesRemaining >= 20" style="font-size: 11px;">
+                    <i class="bi bi-clock me-1"></i>{{ req.slaMinutesRemaining }}m left
+                  </div>
+                </div>
+              </td>
+
+              <!-- Complexity & Impact -->
+              <td class="py-3">
+                <div class="d-flex flex-column gap-1">
+                  <span class="text-dark small font-mono fw-semibold">
+                    Score: {{ req.complexityScore }}/10
+                  </span>
+                  <span class="text-secondary small" style="font-size: 11px;">
+                    Impact: {{ req.financialImpact }}
+                  </span>
+                </div>
+              </td>
+
+              <!-- Assigned Specialist -->
+              <td class="py-3">
+                @if (req.assignedTo) {
+                  <div class="d-flex align-items-center gap-2">
+                    <img [src]="req.assignedAvatar" alt="Avatar" class="rounded-circle border" width="26" height="26">
+                    <span class="text-dark fw-medium small" style="font-size: 12.5px;">{{ req.assignedTo }}</span>
+                  </div>
+                } @else {
+                  <span class="text-muted fst-italic small">Unassigned</span>
+                }
+              </td>
+
+              <!-- Status -->
+              <td class="py-3">
+                @if (req.status === 'Unassigned') {
+                  <span class="df-badge df-badge-amber">Unassigned</span>
+                } @else if (req.status === 'Calculating') {
+                  <span class="df-badge df-badge-purple">Calculating</span>
+                } @else if (req.status === 'Escalated') {
+                  <span class="df-badge df-badge-red">Escalated</span>
+                } @else {
+                  <span class="df-badge df-badge-emerald">Assigned</span>
+                }
+              </td>
+
+              <!-- Action -->
+              <td class="pe-3 py-3 text-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-df-dark d-inline-flex align-items-center gap-1 px-3 py-1"
+                  style="font-size: 12px;"
+                  (click)="inspectRequest(req)">
+                  <i class="bi bi-sliders"></i>
+                  <span>Inspect & Calculate</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Footer -->
+    <div class="p-3 border-top bg-light-subtle d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small text-muted">
+      <span>Showing {{ filteredRequests().length }} active traffic requests</span>
+      <span>DeskFlow Traffic Controller Gateway &bull; v2.4</span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL / DRAWER: REQUEST INSPECTION, CALCULATOR & DISPATCH -->
+  <!-- ======================================================== -->
+  @if (activeRequest(); as req) {
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop fade show" (click)="closeModal()" style="z-index: 1050;"></div>
+
+    <!-- Modal Dialog -->
+    <div class="modal fade show d-block" tabindex="-1" style="z-index: 1055;">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+
+          <!-- Modal Header -->
+          <div class="modal-header bg-dark text-white p-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <span class="font-mono fw-bold text-white px-2 py-1 rounded bg-secondary-subtle text-dark" style="font-size: 13px;">
+                {{ req.id }}
+              </span>
+              <h5 class="modal-title fw-bold text-white mb-0 h6 text-truncate" style="max-width: 480px;">
+                {{ req.title }}
+              </h5>
+            </div>
+            <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
+          </div>
+
+          <!-- Quick Metadata Bar -->
+          <div class="bg-light px-3 py-2 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 small">
+            <div>
+              <strong>Origin:</strong> <span class="text-secondary">{{ req.source }}</span> (Ref: <code>{{ req.externalRef }}</code>)
+            </div>
+            <div>
+              <strong>Customer:</strong> <span class="text-dark fw-semibold">{{ req.customer }}</span> &bull; {{ req.tier }}
+            </div>
+            <div>
+              <strong>Priority:</strong>
+              @if (req.priority === 'Critical') {
+                <span class="text-danger fw-bold"><i class="bi bi-fire"></i> Critical</span>
+              } @else {
+                <span class="text-primary fw-semibold">{{ req.priority }}</span>
+              }
+            </div>
+          </div>
+
+          <!-- Modal Nav Tabs -->
+          <div class="border-bottom px-3 pt-2 bg-white">
+            <ul class="nav nav-tabs border-bottom-0 gap-2">
+              <li class="nav-item">
+                <button class="nav-link py-2" [class.active]="activeModalTab() === 'calculate'" (click)="activeModalTab.set('calculate')">
+                  <i class="bi bi-calculator me-1"></i> Calculate & SLA
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-2" [class.active]="activeModalTab() === 'payload'" (click)="activeModalTab.set('payload')">
+                  <i class="bi bi-code-slash me-1"></i> 3rd-Party Payload
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-2" [class.active]="activeModalTab() === 'dispatch'" (click)="activeModalTab.set('dispatch')">
+                  <i class="bi bi-person-check me-1"></i> Manager Dispatch
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link py-2 text-danger" [class.active]="activeModalTab() === 'escalate'" (click)="activeModalTab.set('escalate')">
+                  <i class="bi bi-shield-exclamation me-1"></i> Escalate Request
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Modal Body Content based on Active Tab -->
+          <div class="modal-body p-4">
+
+            <!-- TAB 1: CALCULATE & SLA -->
+            @if (activeModalTab() === 'calculate') {
+              <div>
+                <h6 class="fw-bold text-dark mb-2">Request Complexity & Effort Calculator</h6>
+                <p class="text-secondary small mb-4">
+                  Adjust inbound risk parameters to calculate the SLA deadline and effort weight for team dispatching.
+                </p>
+
+                <div class="row g-3 mb-4">
+                  <!-- Risk Level Input -->
+                  <div class="col-md-4">
+                    <label class="form-label small fw-semibold text-secondary">Risk Exposure Factor</label>
+                    <select class="form-select form-select-sm" [ngModel]="calcRiskFactor()" (ngModelChange)="calcRiskFactor.set(+$event)">
+                      <option [value]="1">1 - Standard Low Risk</option>
+                      <option [value]="2">2 - Moderate Financial Impact</option>
+                      <option [value]="3">3 - Severe SLA / Contract Risk</option>
+                    </select>
+                  </div>
+
+                  <!-- Inbound Data Points -->
+                  <div class="col-md-4">
+                    <label class="form-label small fw-semibold text-secondary">Data Points / Payload Entities</label>
+                    <input type="number" class="form-control form-control-sm" [ngModel]="calcDataPoints()" (ngModelChange)="calcDataPoints.set(+$event)">
+                  </div>
+
+                  <!-- Financial Threshold Tier -->
+                  <div class="col-md-4">
+                    <label class="form-label small fw-semibold text-secondary">Financial Impact Tier</label>
+                    <input type="text" class="form-control form-control-sm" [value]="req.financialImpact" readonly>
+                  </div>
+                </div>
+
+                <!-- Calculated Output Card -->
+                <div class="p-3 rounded-3 bg-light border d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-3">
+                  <div>
+                    <div class="small text-muted mb-1">Calculated Complexity Score</div>
+                    <div class="h3 fw-bold text-dark mb-0 font-mono">{{ req.complexityScore }} / 10.0</div>
+                    <div class="small text-secondary mt-1">
+                      Estimated Handling Time: <strong>{{ (req.complexityScore * 8) | number:'1.0-0' }} mins</strong>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-column align-items-sm-end">
+                    <div class="small text-muted mb-1">SLA Countdown Status</div>
+                    <div class="h4 fw-bold font-mono mb-0" [class.text-danger]="req.slaMinutesRemaining < 20" [class.text-success]="req.slaMinutesRemaining >= 20">
+                      {{ req.slaMinutesRemaining }} minutes remaining
+                    </div>
+                    <div class="small text-secondary">Base Target: {{ req.initialSlaMinutes }} mins</div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="recalculateScore()">
+                    <i class="bi bi-arrow-repeat me-1"></i> Recalculate Score
+                  </button>
+                  <button type="button" class="btn btn-sm btn-df-dark" (click)="activeModalTab.set('dispatch')">
+                    Proceed to Dispatch <i class="bi bi-arrow-right ms-1"></i>
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- TAB 2: 3RD PARTY PAYLOAD INSPECTOR -->
+            @if (activeModalTab() === 'payload') {
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="fw-bold text-dark mb-0">Raw Inbound 3rd-Party Payload Data</h6>
+                  <span class="badge bg-secondary font-mono">JSON / Webhook</span>
+                </div>
+                <p class="text-secondary small mb-3">
+                  Exact payload parameters captured from external caller: <code>{{ req.payload.endpoint }}</code>
+                </p>
+
+                <div class="p-3 rounded-3 bg-dark text-light font-mono small overflow-x-auto mb-3" style="font-size: 12px; line-height: 1.6;">
+                  <div class="text-secondary">// Payload Metadata & External Transaction Reference</div>
+                  <div>&#123;</div>
+                  <div class="ps-3"><span class="text-info">"transaction_id"</span>: <span class="text-warning">"{{ req.payload.transactionId }}"</span>,</div>
+                  <div class="ps-3"><span class="text-info">"originating_ip"</span>: <span class="text-warning">"{{ req.payload.originatingIp }}"</span>,</div>
+                  <div class="ps-3"><span class="text-info">"source_channel"</span>: <span class="text-warning">"{{ req.source }}"</span>,</div>
+                  <div class="ps-3"><span class="text-info">"customer_entity"</span>: <span class="text-warning">"{{ req.customer }}"</span>,</div>
+                  <div class="ps-3"><span class="text-info">"tier"</span>: <span class="text-warning">"{{ req.tier }}"</span>,</div>
+                  @if (req.payload.amount) {
+                    <div class="ps-3"><span class="text-info">"amount_value"</span>: <span class="text-success">{{ req.payload.amount }}</span>,</div>
+                  }
+                  <div class="ps-3"><span class="text-info">"error_summary"</span>: <span class="text-danger">"{{ req.payload.errorSummary }}"</span>,</div>
+                  <div class="ps-3"><span class="text-info">"callback_webhook"</span>: <span class="text-warning">"{{ req.payload.callbackWebhook }}"</span></div>
+                  <div>&#125;</div>
+                </div>
+
+                <div class="alert alert-info py-2 px-3 small mb-0 d-flex align-items-center gap-2">
+                  <i class="bi bi-shield-check fs-5"></i>
+                  <span>Payload signature verified via webhook HMAC-SHA256 signature key.</span>
+                </div>
+              </div>
+            }
+
+            <!-- TAB 3: MANAGER DISPATCH -->
+            @if (activeModalTab() === 'dispatch') {
+              <div>
+                <h6 class="fw-bold text-dark mb-2">Manager Dispatch Console</h6>
+                <p class="text-secondary small mb-3">
+                  Assign this request to a team specialist. Workload balancer shows active ticket loads in real-time.
+                </p>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold text-secondary">Select Assignee</label>
+                  <div class="d-flex flex-column gap-2">
+                    @for (tm of teamMembers(); track tm.id) {
+                      <label class="p-2 rounded-2 border d-flex align-items-center justify-content-between cursor-pointer"
+                        [class.border-primary]="selectedAssigneeId() === tm.id"
+                        [class.bg-primary-subtle]="selectedAssigneeId() === tm.id"
+                        [class.opacity-50]="!tm.available">
+                        <div class="d-flex align-items-center gap-2">
+                          <input type="radio" name="assigneeGroup" [value]="tm.id" [disabled]="!tm.available" [ngModel]="selectedAssigneeId()" (ngModelChange)="selectedAssigneeId.set($event)">
+                          <img [src]="tm.avatar" alt="Avatar" class="rounded-circle" width="32" height="32">
+                          <div>
+                            <div class="fw-semibold text-dark small">{{ tm.name }}</div>
+                            <div class="text-muted" style="font-size: 11px;">{{ tm.role }}</div>
+                          </div>
+                        </div>
+
+                        <div class="text-end">
+                          <span class="badge" [class.bg-success-subtle]="tm.available" [class.text-success]="tm.available" [class.bg-danger-subtle]="!tm.available" [class.text-danger]="!tm.available" style="font-size: 11px;">
+                            {{ tm.activeLoad }}/{{ tm.maxLoad }} active tickets
+                          </span>
+                        </div>
+                      </label>
+                    }
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold text-secondary">Routing Instructions / Note</label>
+                  <textarea class="form-control form-control-sm" rows="2" placeholder="e.g. Please verify ledger discrepancy before client meeting..." [ngModel]="dispatchNote()" (ngModelChange)="dispatchNote.set($event)"></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeModal()">Cancel</button>
+                  <button type="button" class="btn btn-sm btn-df-dark" [disabled]="!selectedAssigneeId()" (click)="confirmDispatch()">
+                    <i class="bi bi-send-check me-1"></i> Confirm Dispatch
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- TAB 4: ESCALATION -->
+            @if (activeModalTab() === 'escalate') {
+              <div>
+                <div class="alert alert-danger p-3 mb-3">
+                  <h6 class="fw-bold text-danger mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Escalate to Senior Level / Tier 3</h6>
+                  <p class="small mb-0 text-danger-emphasis">
+                    Escalating will notify the System Admin and Senior Operations Manager, fast-track the SLA timer, and flag this request across all supervisor dashboards.
+                  </p>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold text-secondary">Escalation Trigger Reason</label>
+                  <select class="form-select form-select-sm" [ngModel]="escalationReason()" (ngModelChange)="escalationReason.set($event)">
+                    <option value="SLA Threat Threshold">SLA Threat: < 15 mins remaining before breach</option>
+                    <option value="High Financial Risk">Financial Exposure: Value exceeds standard threshold</option>
+                    <option value="Technical Complexity">Technical Failure: 3rd-party API rate limit or outage</option>
+                    <option value="Enterprise VIP Mandate">Contractual VIP SLA: Requires executive oversight</option>
+                  </select>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeModal()">Cancel</button>
+                  <button type="button" class="btn btn-sm btn-danger px-3" (click)="triggerEscalation()">
+                    <i class="bi bi-arrow-up-circle-fill me-1"></i> Confirm Immediate Escalation
+                  </button>
+                </div>
+              </div>
+            }
+
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="modal-footer bg-light p-2 px-3 d-flex justify-content-between align-items-center">
+            <span class="text-muted small" style="font-size: 11px;">
+              Request Audit Log ID: <code>AUD-{{ req.id }}</code>
+            </span>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="closeModal()">Close</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

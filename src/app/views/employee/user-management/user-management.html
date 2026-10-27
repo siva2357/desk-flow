@@ -1,0 +1,198 @@
+<div class="container-fluid px-3 px-lg-4 py-4">
+
+  <!-- TOP HEADER -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h2 class="h4 fw-bold text-dark mb-0">User Management & Team Permissions</h2>
+        <span class="df-badge df-badge-purple">
+          <i class="bi bi-shield-lock me-1"></i> High-Level Admin Rights
+        </span>
+      </div>
+      <p class="text-secondary small mb-0">
+        Supervise DeskFlow user accounts, configure role-based access rights, and invite managers, administrators, and specialists.
+      </p>
+    </div>
+
+    <div>
+      <button type="button" class="btn btn-sm btn-df-dark d-inline-flex align-items-center gap-2 px-3 py-2" (click)="openModal()">
+        <i class="bi bi-person-plus-fill"></i>
+        <span>Add New User</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="df-card p-3">
+        <div class="text-secondary small mb-1">Total System Users</div>
+        <div class="h3 fw-bold text-dark mb-0 font-mono">{{ users().length }}</div>
+        <div class="small text-muted mt-1">Across 4 permission tiers</div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="df-card p-3">
+        <div class="text-secondary small mb-1">System Administrators</div>
+        <div class="h3 fw-bold text-dark mb-0 font-mono">1</div>
+        <div class="small text-purple fw-semibold mt-1">Full Root Access</div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="df-card p-3">
+        <div class="text-secondary small mb-1">Operations Managers</div>
+        <div class="h3 fw-bold text-dark mb-0 font-mono">1</div>
+        <div class="small text-secondary mt-1">Traffic & Dispatch Control</div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="df-card p-3">
+        <div class="text-secondary small mb-1">Resolution Specialists</div>
+        <div class="h3 fw-bold text-dark mb-0 font-mono">2</div>
+        <div class="small text-success mt-1">Active Ticket Handlers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS & DIRECTORY TABLE -->
+  <div class="df-card p-0 overflow-hidden">
+    <div class="p-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
+      <!-- Role Filter Pills -->
+      <div class="d-flex align-items-center gap-1 overflow-x-auto pb-1 pb-sm-0" style="scrollbar-width: none;">
+        @for (r of ['All', 'System Admin', 'Traffic Operations Manager', 'Senior HR', 'Resolution Specialist']; track r) {
+          <button
+            type="button"
+            class="btn btn-sm rounded-pill px-3 py-1 fw-medium text-nowrap"
+            [class.btn-df-dark]="selectedRoleFilter() === r"
+            [class.btn-light]="selectedRoleFilter() !== r"
+            (click)="selectedRoleFilter.set(r)">
+            {{ r }}
+          </button>
+        }
+      </div>
+
+      <!-- Search Input -->
+      <div class="input-group input-group-sm" style="min-width: 220px;">
+        <span class="input-group-text bg-white border-end-0 text-muted">
+          <i class="bi bi-search"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control bg-white border-start-0"
+          placeholder="Search name, email, role..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)">
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr class="text-uppercase text-secondary" style="font-size: 11px; letter-spacing: 0.05em;">
+            <th class="ps-3 py-3">User & Contact</th>
+            <th class="py-3">System Role</th>
+            <th class="py-3">Permissions & Access Rights</th>
+            <th class="py-3">Status</th>
+            <th class="py-3">Last Active</th>
+            <th class="pe-3 py-3 text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of filteredUsers(); track u.id) {
+            <tr>
+              <!-- User & Avatar -->
+              <td class="ps-3 py-3">
+                <div class="d-flex align-items-center gap-3">
+                  <img [src]="u.avatar" alt="Avatar" class="rounded-circle border" width="36" height="36">
+                  <div>
+                    <div class="fw-semibold text-dark small">{{ u.name }}</div>
+                    <div class="text-muted" style="font-size: 11.5px;">{{ u.email }} &bull; <span class="font-mono">{{ u.id }}</span></div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Role -->
+              <td class="py-3">
+                @if (u.role === 'System Admin') {
+                  <span class="df-badge df-badge-purple">{{ u.role }}</span>
+                } @else if (u.role === 'Traffic Operations Manager') {
+                  <span class="df-badge df-badge-blue">{{ u.role }}</span>
+                } @else if (u.role === 'Senior HR') {
+                  <span class="df-badge df-badge-amber">{{ u.role }}</span>
+                } @else {
+                  <span class="df-badge df-badge-gray">{{ u.role }}</span>
+                }
+              </td>
+
+              <!-- Permissions -->
+              <td class="py-3" style="max-width: 300px;">
+                <div class="d-flex flex-wrap gap-1">
+                  @for (p of u.permissions; track p) {
+                    <span class="badge bg-light text-secondary border fw-normal" style="font-size: 10px;">{{ p }}</span>
+                  }
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td class="py-3">
+                <span class="df-badge df-badge-emerald">{{ u.status }}</span>
+              </td>
+
+              <!-- Last Active -->
+              <td class="py-3 text-muted small">{{ u.lastActive }}</td>
+
+              <!-- Action -->
+              <td class="pe-3 py-3 text-end">
+                <button type="button" class="btn btn-sm btn-light border px-2 py-1 text-secondary" style="font-size: 12px;">
+                  <i class="bi bi-gear"></i> Rights
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADD USER MODAL -->
+  @if (showAddUserModal()) {
+    <div class="modal-backdrop fade show" (click)="closeModal()" style="z-index: 1050;"></div>
+    <div class="modal fade show d-block" tabindex="-1" style="z-index: 1055;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+          <div class="modal-header bg-dark text-white p-3">
+            <h5 class="modal-title h6 fw-bold mb-0">Add New User to DeskFlow</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeModal()"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-secondary">Full Name</label>
+              <input type="text" class="form-control form-control-sm" placeholder="e.g. Liam Gallagher" [ngModel]="newUserName()" (ngModelChange)="newUserName.set($event)">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-secondary">Email Address</label>
+              <input type="email" class="form-control form-control-sm" placeholder="e.g. liam.g@deskflow.io" [ngModel]="newUserEmail()" (ngModelChange)="newUserEmail.set($event)">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-secondary">System Role</label>
+              <select class="form-select form-select-sm" [ngModel]="newUserRole()" (ngModelChange)="newUserRole.set($event)">
+                <option value="System Admin">System Admin (Full Rights)</option>
+                <option value="Traffic Operations Manager">Traffic Operations Manager</option>
+                <option value="Senior HR">Senior HR</option>
+                <option value="Resolution Specialist">Resolution Specialist</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer bg-light p-2 px-3 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeModal()">Cancel</button>
+            <button type="button" class="btn btn-sm btn-df-dark" [disabled]="!newUserName() || !newUserEmail()" (click)="addUser()">
+              <i class="bi bi-person-check-fill me-1"></i> Create User
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

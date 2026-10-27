@@ -1,0 +1,33 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.table-danger-subtle {
+  background-color: #fef2f2 !important;
+}
+
+.table-danger-subtle:hover {
+  background-color: #fee2e2 !important;
+}
+
+.nav-tabs .nav-link {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 8px 16px;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #0f172a;
+  border-bottom-color: #cbd5e1;
+}
+
+.nav-tabs .nav-link.active {
+  color: #0f172a;
+  font-weight: 600;
+  border-bottom-color: #0f172a;
+  background: transparent;
+}

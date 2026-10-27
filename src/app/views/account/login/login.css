@@ -1,0 +1,125 @@
+.login-page-container {
+  background-color: #f1f5f9;
+  font-family: var(--df-font-sans, 'Plus Jakarta Sans', sans-serif);
+}
+
+.login-card-shell {
+  max-width: 1140px;
+  min-height: 640px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08);
+}
+
+/* Watermark ripple circles in form side background */
+.form-side {
+  background-color: #ffffff;
+  background-image: 
+    radial-gradient(circle at 0% 10%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 0% 30%, rgba(139, 92, 246, 0.04) 0%, transparent 55%),
+    radial-gradient(circle at 10% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 70%);
+}
+
+.watermark-rings {
+  background-image: radial-gradient(circle at 0% 0%, transparent 80px, rgba(99, 102, 241, 0.03) 81px, transparent 83px),
+                    radial-gradient(circle at 0% 0%, transparent 160px, rgba(99, 102, 241, 0.03) 161px, transparent 163px),
+                    radial-gradient(circle at 0% 0%, transparent 240px, rgba(99, 102, 241, 0.03) 241px, transparent 243px);
+  pointer-events: none;
+}
+
+/* Custom Input Styling matching screenshot */
+.custom-input-group {
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.custom-input-group:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.custom-input-group .form-control,
+.custom-input-group .input-group-text {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.custom-input-group .input-group-text {
+  color: #94a3b8;
+}
+
+/* Primary Button matching Talent Hub style */
+.btn-primary-talent {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  height: 48px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary-talent:hover {
+  background-color: #1d4ed8;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+}
+
+.btn-primary-talent:active {
+  transform: translateY(0);
+}
+
+/* Visual Hero Card (Right Panel in Screenshot) */
+.hero-card-side {
+  background-color: #ffffff;
+}
+
+.hero-card-inner {
+  background-color: #0b1120;
+  border-radius: 24px;
+  min-height: 560px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-bg-layer {
+  background-image: url('/deskflow-login-card.jpg');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: saturate(1.08);
+}
+
+.hero-gradient-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(11, 17, 32, 0.05) 0%,
+    rgba(11, 17, 32, 0.35) 50%,
+    rgba(11, 17, 32, 0.88) 100%
+  );
+}
+
+.hero-glass-box {
+  background: rgba(11, 17, 32, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.hero-pill-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

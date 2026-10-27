@@ -1,0 +1,167 @@
+<div class="login-page-container min-vh-100 d-flex align-items-center justify-content-center p-2 p-md-3 p-lg-4">
+
+  <!-- MAIN WRAPPER: Responsive Grid with optional flip -->
+  <div class="login-card-shell w-100 bg-white rounded-4 shadow-sm overflow-hidden d-flex flex-column flex-lg-row"
+    [class.flex-lg-row-reverse]="isReversedLayout()">
+
+    <!-- FORM SIDE (Clean white with subtle concentric watermark curves) -->
+    <div class="form-side col-12 col-lg-6 d-flex flex-column justify-content-between p-4 p-sm-5 position-relative">
+      <!-- Watermark Circles Background -->
+      <div class="watermark-rings position-absolute top-0 start-0 w-100 h-100 pointer-events-none"></div>
+
+      <!-- Top Branding -->
+      <div class="position-relative z-1 d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-2">
+          <img src="/logo 2.png" alt="DeskFlow Logo" height="38" class="object-fit-contain">
+        </div>
+        <!-- Layout Side Switcher Button for User Preference -->
+        <button type="button"
+          class="btn btn-sm btn-light border text-muted d-none d-lg-inline-flex align-items-center gap-1"
+          style="font-size: 11px;" (click)="toggleLayout()" title="Switch Form & Image positions">
+          <i class="bi bi-arrow-left-right"></i> Flip Layout
+        </button>
+      </div>
+
+      <!-- Center Form Content -->
+      <div class="position-relative z-1 my-auto w-100" style="max-width: 390px; margin-inline: auto;">
+
+        <!-- Title & Subtitle -->
+        <div class="text-center mb-4">
+          <h2 class="fw-bold text-dark mb-1" style="font-size: 28px; letter-spacing: -0.02em;">Welcome Back</h2>
+          <p class="text-secondary small mb-0" style="font-size: 13.5px;">Login to continue to your account.</p>
+        </div>
+
+        <!-- Quick Demo Presets -->
+        <div class="p-2 mb-4 bg-light rounded-3 border d-flex align-items-center justify-content-between gap-1">
+          <span class="text-muted small ps-1"
+            style="font-size: 10px; font-weight: 600; text-transform: uppercase;">Demo:</span>
+          <div class="btn-group btn-group-sm flex-grow-1" role="group">
+            <button type="button" class="btn py-1" [class.btn-dark]="selectedRole() === 'manager'"
+              [class.btn-outline-secondary]="selectedRole() !== 'manager'" (click)="selectDemoRole('manager')"
+              style="font-size: 11px;">
+              Manager
+            </button>
+            <button type="button" class="btn py-1" [class.btn-dark]="selectedRole() === 'admin'"
+              [class.btn-outline-secondary]="selectedRole() !== 'admin'" (click)="selectDemoRole('admin')"
+              style="font-size: 11px;">
+              Admin
+            </button>
+            <button type="button" class="btn py-1" [class.btn-dark]="selectedRole() === 'hr'"
+              [class.btn-outline-secondary]="selectedRole() !== 'hr'" (click)="selectDemoRole('hr')"
+              style="font-size: 11px;">
+              Senior HR
+            </button>
+          </div>
+        </div>
+
+        <!-- Error Alert -->
+        @if (errorMessage()) {
+        <div class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3" role="alert">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          <span>{{ errorMessage() }}</span>
+        </div>
+        }
+
+        <!-- Login Form -->
+        <form (submit)="onLogin($event)">
+
+          <!-- Email Address -->
+          <div class="mb-3">
+            <label class="form-label text-dark fw-medium mb-1" style="font-size: 13px;">Email Address</label>
+            <div class="input-group custom-input-group">
+              <span class="input-group-text bg-white border-end-0 text-muted ps-3">
+                <i class="bi bi-envelope fs-6"></i>
+              </span>
+              <input type="email" class="form-control bg-white border-start-0 py-2"
+                placeholder="Enter your email address" [ngModel]="email()" (ngModelChange)="email.set($event)"
+                name="userEmail" style="font-size: 14px;" required>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-2">
+            <label class="form-label text-dark fw-medium mb-1" style="font-size: 13px;">Password</label>
+            <div class="input-group custom-input-group">
+              <span class="input-group-text bg-white border-end-0 text-muted ps-3">
+                <i class="bi bi-lock fs-6"></i>
+              </span>
+              <input [type]="showPassword() ? 'text' : 'password'"
+                class="form-control bg-white border-start-0 border-end-0 py-2" placeholder="Enter your password"
+                [ngModel]="password()" (ngModelChange)="password.set($event)" name="userPassword"
+                style="font-size: 14px;" required>
+              <button type="button" class="input-group-text bg-white border-start-0 text-muted pe-3 cursor-pointer"
+                (click)="togglePasswordVisibility()">
+                <i class="bi" [class.bi-eye]="!showPassword()" [class.bi-eye-slash]="showPassword()"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Forgot Password Link -->
+          <div class="text-end mb-4">
+            <a href="javascript:void(0)" class="text-decoration-none fw-semibold"
+              style="font-size: 13px; color: #3b82f6;">
+              Forgot password?
+            </a>
+          </div>
+
+          <!-- Log In Button (Exact Talent Hub Style) -->
+          <button type="submit"
+            class="btn btn-primary-talent w-100 py-2 d-flex align-items-center justify-content-center gap-2 fw-semibold"
+            [disabled]="isLoading()">
+            @if (isLoading()) {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Logging In...</span>
+            } @else {
+            <i class="bi bi-box-arrow-in-right fs-5"></i>
+            <span>Log In</span>
+            }
+          </button>
+        </form>
+
+        <!-- Bottom Sign Up Note -->
+        <div class="text-center mt-4 text-muted small" style="font-size: 13px;">
+          Don't have an account?
+          <a href="javascript:void(0)" class="text-decoration-none fw-semibold" style="color: #3b82f6;">
+            Sign up
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Footer Info -->
+      <div class="position-relative z-1 text-center text-muted small mt-4" style="font-size: 11px;">
+        DeskFlow Enterprise Platform &bull; Senior Access Only
+      </div>
+    </div>
+
+    <!-- VISUAL HERO SIDE (Rounded Card Container with Holographic Boardroom Image) -->
+    <div class="hero-card-side col-12 col-lg-6 p-3 p-lg-4 d-flex">
+      <div
+        class="hero-card-inner rounded-4 w-100 position-relative overflow-hidden d-flex flex-column justify-content-end p-4 p-md-5">
+
+        <!-- Background Image -->
+        <div class="hero-bg-layer position-absolute top-0 start-0 w-100 h-100"></div>
+        <div class="hero-gradient-overlay position-absolute top-0 start-0 w-100 h-100"></div>
+
+        <!-- Floating Glassmorphism Bottom Card (Exact Talent Hub Style) -->
+        <div class="hero-glass-box position-relative z-2 p-3 p-md-4 rounded-4 shadow-lg backdrop-blur">
+          <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill hero-pill-badge mb-3">
+            <i class="bi bi-stars text-warning"></i>
+            <span class="fw-semibold text-white small" style="font-size: 11.5px;">Next-Gen Request Platform</span>
+          </div>
+
+          <h3 class="fw-bold text-white mb-2" style="font-size: 21px; letter-spacing: -0.01em;">
+            Empowering Top Talent & Visionary Operations
+          </h3>
+          <p class="text-white-50 small mb-0" style="font-size: 12.5px; line-height: 1.6;">
+            Collaborate, triage third-party inbound requests, calculate SLA boundaries, and build exceptional resolution
+            flows with verified specialists worldwide.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

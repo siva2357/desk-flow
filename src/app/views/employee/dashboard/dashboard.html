@@ -1,0 +1,376 @@
+<div class="container-fluid px-3 px-lg-4 py-4">
+
+  <!-- TOP HEADER & CONTROLLER STATUS -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h2 class="h4 fw-bold text-dark mb-0">Operations Traffic Controller</h2>
+        <span class="df-badge df-badge-emerald">
+          <span class="live-dot"></span> Ingestion Online
+        </span>
+      </div>
+      <p class="text-secondary small mb-0">
+        Supervisory console for Managers, System Admins & Senior HR &bull; Automated 3rd-party triage & workload dispatcher
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex align-items-center gap-2">
+      <div class="input-group input-group-sm d-none d-sm-flex" style="width: 240px;">
+        <span class="input-group-text bg-white border-end-0 text-muted">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" class="form-control bg-white border-start-0" placeholder="Search request or ID...">
+      </div>
+      <a routerLink="/request" class="btn btn-sm btn-df-dark d-flex align-items-center gap-2 px-3 py-2">
+        <i class="bi bi-diagram-3"></i>
+        <span>Open Traffic Console</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- METRIC TELEMETRY CARDS -->
+  <div class="row g-3 mb-4">
+    <!-- Card 1 -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="df-card p-3 h-100 position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-secondary small fw-medium">Total Inbound Today</span>
+          <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-arrow-down-left text-dark"></i>
+          </div>
+        </div>
+        <div class="d-flex align-items-baseline gap-2 mb-2">
+          <h3 class="h3 fw-bold text-dark mb-0">{{ totalInbound() | number }}</h3>
+          <span class="text-success small fw-semibold">
+            <i class="bi bi-arrow-up-short"></i> +14.2%
+          </span>
+        </div>
+        <div class="text-muted small" style="font-size: 11.5px;">
+          Ingested from 4 connected 3rd-party portals
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="df-card p-3 h-100 position-relative overflow-hidden border-warning-subtle">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-secondary small fw-medium">Unassigned in Queue</span>
+          <div class="rounded-circle bg-warning-subtle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-hourglass-split text-warning-emphasis"></i>
+          </div>
+        </div>
+        <div class="d-flex align-items-baseline gap-2 mb-2">
+          <h3 class="h3 fw-bold text-dark mb-0">{{ unassignedCount() }}</h3>
+          <span class="df-badge df-badge-amber">Needs Dispatch</span>
+        </div>
+        <div class="text-muted small" style="font-size: 11.5px;">
+          Avg queue calculation time: <strong>1.8m</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="df-card p-3 h-100 position-relative overflow-hidden border-danger-subtle">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-secondary small fw-medium">Active Escalations</span>
+          <div class="rounded-circle bg-danger-subtle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-shield-exclamation text-danger"></i>
+          </div>
+        </div>
+        <div class="d-flex align-items-baseline gap-2 mb-2">
+          <h3 class="h3 fw-bold text-dark mb-0">{{ escalationsCount() }}</h3>
+          <span class="df-badge df-badge-red">Tier 2 & 3</span>
+        </div>
+        <div class="text-danger small fw-medium" style="font-size: 11.5px;">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i> 2 requests near SLA threshold
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="df-card p-3 h-100 position-relative overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-secondary small fw-medium">SLA Resolution Rate</span>
+          <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-check2-circle text-primary"></i>
+          </div>
+        </div>
+        <div class="d-flex align-items-baseline gap-2 mb-2">
+          <h3 class="h3 fw-bold text-dark mb-0">{{ slaCompliance() }}</h3>
+          <span class="text-success small fw-semibold">Target > 95%</span>
+        </div>
+        <div class="text-muted small" style="font-size: 11.5px;">
+          Median dispatch resolution: <strong>3.8 mins</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN SECTION: LIVE TRAFFIC STREAM & DISPATCH ROSTER -->
+  <div class="row g-4">
+
+    <!-- LEFT: LIVE INBOUND TRAFFIC QUEUE -->
+    <div class="col-12 col-xl-8">
+      <div class="df-card p-0 h-100 d-flex flex-column">
+
+        <!-- Card Header -->
+        <div class="p-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="fw-bold text-dark mb-0 h6">Live Inbound Request Queue</h5>
+              <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">Stream active</span>
+            </div>
+            <p class="text-muted small mb-0 mt-1">Real-time webhook & 3rd-party external requests pending calculation & routing</p>
+          </div>
+          <a routerLink="/request" class="btn btn-sm btn-df-outline text-nowrap">
+            View All Requests <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+
+        <!-- Table List -->
+        <div class="table-responsive flex-grow-1">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr class="text-uppercase text-secondary" style="font-size: 11px; letter-spacing: 0.05em;">
+                <th class="ps-3 py-3">Request ID & Source</th>
+                <th class="py-3">Title & Client</th>
+                <th class="py-3">Priority / SLA</th>
+                <th class="py-3">Calculated Effort</th>
+                <th class="py-3">Status</th>
+                <th class="pe-3 py-3 text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (req of recentRequests(); track req.id) {
+                <tr class="cursor-pointer" [class.table-danger-subtle]="req.priority === 'Critical' && req.slaMinutesRemaining < 15">
+                  <!-- ID & Source -->
+                  <td class="ps-3 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-2 bg-light p-1 text-secondary d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                        <i class="bi" [ngClass]="req.sourceIcon"></i>
+                      </div>
+                      <div>
+                        <span class="fw-bold font-mono text-dark" style="font-size: 13px;">{{ req.id }}</span>
+                        <div class="text-muted" style="font-size: 11px;">{{ req.source }}</div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Title & Customer -->
+                  <td class="py-3" style="max-width: 260px;">
+                    <div class="fw-semibold text-dark text-truncate" style="font-size: 13px;" [title]="req.title">{{ req.title }}</div>
+                    <div class="text-muted text-truncate small" style="font-size: 11.5px;">{{ req.customer }} &bull; <span class="text-secondary">{{ req.tier }}</span></div>
+                  </td>
+
+                  <!-- Priority & SLA Timer -->
+                  <td class="py-3">
+                    <div class="d-flex flex-column gap-1">
+                      <div>
+                        @if (req.priority === 'Critical') {
+                          <span class="df-badge df-badge-red"><i class="bi bi-fire"></i> Critical</span>
+                        } @else if (req.priority === 'High') {
+                          <span class="df-badge df-badge-amber">High</span>
+                        } @else {
+                          <span class="df-badge df-badge-blue">Medium</span>
+                        }
+                      </div>
+                      <div class="small font-mono" [class.text-danger]="req.slaMinutesRemaining < 20" [class.text-muted]="req.slaMinutesRemaining >= 20" style="font-size: 11px;">
+                        <i class="bi bi-clock me-1"></i>SLA: {{ req.slaMinutesRemaining }}m left
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Calculated Effort -->
+                  <td class="py-3">
+                    <span class="text-secondary small font-mono" style="font-size: 12px;">{{ req.calculatedEffort }}</span>
+                  </td>
+
+                  <!-- Status -->
+                  <td class="py-3">
+                    @if (req.status === 'Unassigned') {
+                      <span class="df-badge df-badge-amber">Unassigned</span>
+                    } @else if (req.status === 'Calculating') {
+                      <span class="df-badge df-badge-purple">Calculating</span>
+                    } @else if (req.status === 'Escalated') {
+                      <span class="df-badge df-badge-red">Escalated</span>
+                    } @else {
+                      <span class="df-badge df-badge-emerald">Assigned</span>
+                    }
+                  </td>
+
+                  <!-- Action -->
+                  <td class="pe-3 py-3 text-end">
+                    @if (req.status === 'Unassigned' || req.status === 'Escalated') {
+                      <div class="dropdown d-inline-block">
+                        <button class="btn btn-sm btn-df-dark dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 12px;">
+                          Assign
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="font-size: 13px;">
+                          <li class="dropdown-header text-uppercase text-muted" style="font-size: 10px;">Assign to Specialist</li>
+                          @for (m of teamRoster(); track m.id) {
+                            <li>
+                              <button class="dropdown-item d-flex align-items-center justify-content-between py-2" (click)="assignRequest(req.id, m.name)">
+                                <div class="d-flex align-items-center gap-2">
+                                  <img [src]="m.avatar" class="rounded-circle" width="22" height="22">
+                                  <span>{{ m.name }}</span>
+                                </div>
+                                <span class="badge" [class.bg-success-subtle]="m.status === 'Available'" [class.text-success]="m.status === 'Available'" [class.bg-warning-subtle]="m.status !== 'Available'" [class.text-warning]="m.status !== 'Available'" style="font-size: 10px;">
+                                  {{ m.activeLoad }}/{{ m.maxLoad }}
+                                </span>
+                              </button>
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    } @else {
+                      <a routerLink="/request" class="btn btn-sm btn-light border px-2 py-1 text-secondary" style="font-size: 12px;">
+                        Inspect
+                      </a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-3 border-top bg-light-subtle d-flex justify-content-between align-items-center small text-muted">
+          <span>Showing 5 most recent requests &bull; Updated automatically</span>
+          <span class="d-flex align-items-center gap-1">
+            <span class="live-dot" style="width: 6px; height: 6px;"></span> Active Webhook Pool
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: TEAM ROSTER & INTEGRATION SOURCES -->
+    <div class="col-12 col-xl-4 d-flex flex-column gap-4">
+
+      <!-- Team Dispatch Capacity Matrix -->
+      <div class="df-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h6 class="fw-bold text-dark mb-0">Team Dispatch Load</h6>
+            <span class="text-muted small" style="font-size: 11.5px;">Live specialist workload balance</span>
+          </div>
+          <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 11px;">
+            4 On Duty
+          </span>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+          @for (member of teamRoster(); track member.id) {
+            <div class="p-2 rounded-2 bg-light-subtle border border-light-subtle d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <div class="position-relative">
+                  <img [src]="member.avatar" alt="Avatar" class="rounded-circle border" width="38" height="38">
+                  <span class="position-absolute bottom-0 end-0 p-1 border border-white rounded-circle"
+                    [class.bg-success]="member.status === 'Available'"
+                    [class.bg-warning]="member.status === 'Busy'"
+                    [class.bg-danger]="member.status === 'Overloaded'"></span>
+                </div>
+                <div>
+                  <div class="fw-semibold text-dark text-truncate" style="font-size: 13px; max-width: 140px;">
+                    {{ member.name }}
+                  </div>
+                  <div class="text-muted" style="font-size: 11px;">{{ member.role }}</div>
+                </div>
+              </div>
+
+              <!-- Workload Progress -->
+              <div class="text-end" style="width: 90px;">
+                <div class="d-flex justify-content-between small mb-1" style="font-size: 11px;">
+                  <span class="text-muted">Load</span>
+                  <span class="fw-bold font-mono" [class.text-danger]="member.status === 'Overloaded'">
+                    {{ member.activeLoad }}/{{ member.maxLoad }}
+                  </span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                  <div class="progress-bar"
+                    [class.bg-success]="member.status === 'Available'"
+                    [class.bg-warning]="member.status === 'Busy'"
+                    [class.bg-danger]="member.status === 'Overloaded'"
+                    [style.width.%]="(member.activeLoad / member.maxLoad) * 100">
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Connected 3rd Party Sources -->
+      <div class="df-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h6 class="fw-bold text-dark mb-0">Inbound Traffic Channels</h6>
+            <span class="text-muted small" style="font-size: 11.5px;">Channel throughput distribution</span>
+          </div>
+          <span class="df-badge df-badge-gray">All Connected</span>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+          <!-- Channel 1 -->
+          <div>
+            <div class="d-flex justify-content-between align-items-center small mb-1">
+              <span class="d-flex align-items-center gap-2 text-dark fw-medium">
+                <i class="bi bi-bank text-primary"></i> FinTech & Banking APIs
+              </span>
+              <span class="fw-bold text-dark font-mono">42% &bull; 600 req</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-dark" style="width: 42%;"></div>
+            </div>
+          </div>
+
+          <!-- Channel 2 -->
+          <div>
+            <div class="d-flex justify-content-between align-items-center small mb-1">
+              <span class="d-flex align-items-center gap-2 text-dark fw-medium">
+                <i class="bi bi-hdd-network text-info"></i> Enterprise CRM Webhooks
+              </span>
+              <span class="fw-bold text-dark font-mono">28% &bull; 400 req</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-secondary" style="width: 28%;"></div>
+            </div>
+          </div>
+
+          <!-- Channel 3 -->
+          <div>
+            <div class="d-flex justify-content-between align-items-center small mb-1">
+              <span class="d-flex align-items-center gap-2 text-dark fw-medium">
+                <i class="bi bi-cloud-arrow-down text-warning"></i> Partner Settlement Gateways
+              </span>
+              <span class="fw-bold text-dark font-mono">18% &bull; 257 req</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-warning" style="width: 18%;"></div>
+            </div>
+          </div>
+
+          <!-- Channel 4 -->
+          <div>
+            <div class="d-flex justify-content-between align-items-center small mb-1">
+              <span class="d-flex align-items-center gap-2 text-dark fw-medium">
+                <i class="bi bi-phone text-success"></i> Customer Mobile Inbound
+              </span>
+              <span class="fw-bold text-dark font-mono">12% &bull; 171 req</span>
+            </div>
+            <div class="progress" style="height: 6px;">
+              <div class="progress-bar bg-success" style="width: 12%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

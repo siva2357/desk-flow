@@ -1,1 +1,181 @@
-/* You can add global styles to this file, and also import other style files */
+/* Google Fonts: Plus Jakarta Sans & JetBrains Mono */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --df-font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --df-font-mono: 'JetBrains Mono', monospace;
+
+  /* Executive Gray / Slate Palette */
+  --df-slate-900: #0f172a;
+  --df-slate-800: #1e293b;
+  --df-slate-700: #334155;
+  --df-slate-600: #475569;
+  --df-slate-500: #64748b;
+  --df-slate-400: #94a3b8;
+  --df-slate-300: #cbd5e1;
+  --df-slate-200: #e2e8f0;
+  --df-slate-100: #f1f5f9;
+  --df-slate-50: #f8fafc;
+
+  /* Accent & Status Tones */
+  --df-primary: #0f172a;
+  --df-primary-hover: #1e293b;
+  --df-accent-blue: #2563eb;
+  --df-accent-amber: #d97706;
+  --df-accent-red: #dc2626;
+  --df-accent-emerald: #059669;
+  --df-accent-indigo: #4f46e5;
+
+  /* UI Tokens */
+  --df-card-bg: #ffffff;
+  --df-card-border: #e2e8f0;
+  --df-card-radius: 12px;
+  --df-card-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
+}
+
+body {
+  font-family: var(--df-font-sans);
+  color: var(--df-slate-800);
+  background-color: #f8fafc;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography Helpers */
+.font-mono {
+  font-family: var(--df-font-mono) !important;
+}
+
+/* Glassmorphic & Modern Cards */
+.df-card {
+  background: var(--df-card-bg);
+  border: 1px solid var(--df-card-border);
+  border-radius: var(--df-card-radius);
+  box-shadow: var(--df-card-shadow);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.df-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Badges & Status Pills */
+.df-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  letter-spacing: 0.01em;
+}
+
+.df-badge-gray {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.df-badge-amber {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.df-badge-red {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.df-badge-emerald {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.df-badge-blue {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.df-badge-purple {
+  background-color: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #ddd6fe;
+}
+
+/* Buttons */
+.btn-df-dark {
+  background-color: var(--df-slate-900);
+  color: #ffffff;
+  border: 1px solid var(--df-slate-800);
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+.btn-df-dark:hover {
+  background-color: var(--df-slate-800);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+}
+
+.btn-df-outline {
+  background-color: transparent;
+  color: var(--df-slate-700);
+  border: 1px solid var(--df-slate-300);
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+.btn-df-outline:hover {
+  background-color: var(--df-slate-100);
+  color: var(--df-slate-900);
+  border-color: var(--df-slate-400);
+}
+
+/* Pulsing Live Dot */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  display: inline-block;
+  position: relative;
+}
+.live-dot::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  background-color: rgba(16, 185, 129, 0.4);
+  animation: livePulse 2s infinite ease-out;
+}
+@keyframes livePulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}

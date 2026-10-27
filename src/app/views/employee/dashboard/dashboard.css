@@ -1,0 +1,15 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.table-danger-subtle {
+  background-color: #fef2f2 !important;
+}
+
+.table-danger-subtle:hover {
+  background-color: #fee2e2 !important;
+}
